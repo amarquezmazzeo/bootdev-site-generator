@@ -31,14 +31,6 @@ class TestHTMLNode(unittest.TestCase):
                             "class": "hello-text",
                             "id": "salutation"
                         })
-        node2 = HTMLNode(tag="d",
-                        value=None,
-                        children=[node],
-                        props={
-                            "class": "hello-div",
-                            "id": "test"
-                        })
-        props_result = 'class="hello-text" id="salutation"'
         # print(node2)
         self.assertEqual(props_result, node.props_to_html())
 
