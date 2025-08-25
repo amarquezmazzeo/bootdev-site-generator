@@ -32,6 +32,7 @@ class TestHTMLNode(unittest.TestCase):
                             "id": "salutation"
                         })
         # print(node2)
+        props_result = 'class="hello-text" id="salutation"'
         self.assertEqual(props_result, node.props_to_html())
 
 
