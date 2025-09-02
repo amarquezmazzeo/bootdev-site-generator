@@ -10,7 +10,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
         index = text.find(delimiter)
         if index == -1:
             result.append(old_node)
-            break
+            continue
         if len(text[:index]) > 0:
             splits.append(TextNode(text=text[:index],text_type=textType))
         text = text[index+1:]

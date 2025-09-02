@@ -7,7 +7,6 @@ class TestSplitNodesDelimiterCode(unittest.TestCase):
     def test_split_backticks_single(self):
         node = TextNode("This has a `code` bit", TextType.TEXT)
         result = split_nodes_delimiter([node], "`", TextType.CODE)
-        print(result)
 
         self.assertEqual(len(result), 3)
 
