@@ -27,7 +27,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
 
 
 def extract_markdown_images(text):
-    matches = re.findall(r"\!\[([\w\s\d]+)\]\((https?:\/\/[a-z0-9]+(?:[-.][a-z0-9]+)*(?::[0-9]{1,5})?(?:\/[a-zA-Z0-9]+)*(?:\.[a-z]{2,5})*)\)", text)
+    matches = re.findall(r"\!\[([\w\s\d]+)\]\((https?:\/\/[a-zA-Z0-9]+(?:[-.][a-zA-Z0-9]+)*(?::[0-9]{1,5})?(?:\/[a-zA-Z0-9]+)*(?:\.[a-zA-Z]{2,5})*)\)", text)
     extract = []
     for match in matches:
         extract.append(match)
@@ -35,8 +35,52 @@ def extract_markdown_images(text):
     return extract
 
 def extract_markdown_links(text):
-    matches = re.findall(r"\[([\w\s\d]+)\]\((https?:\/\/[a-z0-9]+(?:[-.][a-z0-9]+)*(?::[0-9]{1,5})?(?:\/[a-zA-Z0-9@]+)*(?:\.[a-z]{2,5})*)\)", text)
+    matches = re.findall(r"(?:[^\!]|^)\[([\w\s\d]+)\]\((https?:\/\/[a-zA-Z0-9]+(?:[-.][a-zA-Z0-9]+)*(?::[0-9]{1,5})?(?:\/[a-zA-Z0-9@]+)*(?:\.[a-zA-Z]{2,5})*)\)", text)
     extract = []
     for match in matches:
         extract.append(match)
     return extract
+
+def split_nodes_image(old_nodes):
+    result = []
+    for old_node in old_nodes:
+        text = old_node.text
+        # skip if text is empty
+        if len(text) == 0:
+            continue
+        images = extract_markdown_images(text)
+        # process as is if no images exist
+        if len(images) == 0:
+            result.append(old_node)
+            continue
+        buffer = [text]
+        for image in images:
+            buffer =  buffer[-1].split(f"![{image[0]}]({image[1]})", 1)
+            if len(buffer[0]) != 0:
+                result.append(TextNode(buffer[0], TextType.TEXT))
+            result.append(TextNode(image[0], TextType.IMAGE, image[1]))
+        if len(buffer[-1]) != 0:
+            result.append(TextNode(buffer[-1], TextType.TEXT))
+    return result
+
+def split_nodes_link(old_nodes):
+    result = []
+    for old_node in old_nodes:
+        text = old_node.text
+        # skip if text is empty
+        if len(text) == 0:
+            continue
+        links = extract_markdown_links(text)
+        # process as is if no links exist
+        if len(links) == 0:
+            result.append(old_node)
+            continue
+        buffer = [text]
+        for link in links:
+            buffer =  buffer[-1].split(f"[{link[0]}]({link[1]})", 1)
+            if len(buffer[0]) != 0:
+                result.append(TextNode(buffer[0], TextType.TEXT))
+            result.append(TextNode(link[0], TextType.LINK, link[1]))
+        if len(buffer[-1]) != 0:
+            result.append(TextNode(buffer[-1], TextType.TEXT))
+    return result
