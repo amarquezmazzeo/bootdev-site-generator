@@ -14,14 +14,14 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
             continue
         if len(text[:index]) > 0:
             splits.append(TextNode(text=text[:index],text_type=textType))
-        text = text[index+1:]
+        text = text[index+len(delimiter):]
         index = text.find(delimiter)
         if index == -1:
             raise ValueError(f"unmatched delimiter: {delimiter}")
         if len(text[:index]) > 0:
             splits.append(TextNode(text=text[:index],text_type=text_type))
-        if len(text[index+1:]) > 0:
-            splits.append(TextNode(text=text[index+1:],text_type=textType))
+        if len(text[index+len(delimiter):]) > 0:
+            splits.append(TextNode(text=text[index+len(delimiter):],text_type=textType))
         result.extend(splits)
     return result
 
@@ -84,3 +84,18 @@ def split_nodes_link(old_nodes):
         if len(buffer[-1]) != 0:
             result.append(TextNode(buffer[-1], TextType.TEXT))
     return result
+
+def text_to_textnodes(text):
+    delimiters = {
+        "**": TextType.BOLD,
+        "__": TextType.BOLD,
+        "_": TextType.ITALIC,
+        "`": TextType.CODE
+    }
+    node = TextNode(text, TextType.TEXT)
+    nodes = [node]
+    for k, v in delimiters.items():
+        nodes = split_nodes_delimiter(nodes, k, v)
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+    return nodes
