@@ -1,7 +1,9 @@
 import unittest
 
 from textnode import TextNode, TextType
+from htmlnode import HTMLNode
 from block_markdown import (
+    markdown_to_html_node,
     markdown_to_blocks,
     block_to_block_type,
     BlockType
@@ -71,6 +73,29 @@ This is the same paragraph on a new line
         block = ">"
         block_type = block_to_block_type(block)
         self.assertEqual(block_type, BlockType.QUOTE)
+
+    def test_paragraphs(self):
+        md = "This is **bolded** paragraph\ntext in a p\ntag here\n\nThis is another paragraph with _italic_ text and `code` here"
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div id=\"parent\"><p>This is <b>bolded</b> paragraph text in a p tag here</p><p>This is another paragraph with <i>italic</i> text and <code>code</code> here</p></div>",
+        )
+
+    def test_codeblock(self):
+        md = """
+```
+This is text that _should_ remain
+the **same** even with inline stuff
+```
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div id=\"parent\"><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
+        )
 
 
 if __name__ == "__main__":
