@@ -1,3 +1,5 @@
+from block_markdown import generate_page
+
 import os
 import shutil
 
@@ -27,6 +29,8 @@ def main():
     if os.path.exists(TARGET_DIR):
         shutil.rmtree(TARGET_DIR)
     copy_dir('')
+    generate_page('./content/index.md', './template.html', './public/index.html')
+
 
 if __name__ == "__main__":
     main()
