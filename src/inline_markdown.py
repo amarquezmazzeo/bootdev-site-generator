@@ -27,7 +27,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
 
 
 def extract_markdown_images(text):
-    matches = re.findall(r"\!\[([\w\s\d]+)\]\((https?:\/\/[a-zA-Z0-9]+(?:[-.][a-zA-Z0-9]+)*(?::[0-9]{1,5})?(?:\/[a-zA-Z0-9]+)*(?:\.[a-zA-Z]{2,5})*)\)", text)
+    matches = re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
     extract = []
     for match in matches:
         extract.append(match)
@@ -35,7 +35,7 @@ def extract_markdown_images(text):
     return extract
 
 def extract_markdown_links(text):
-    matches = re.findall(r"(?:[^\!]|^)\[([\w\s\d]+)\]\((https?:\/\/[a-zA-Z0-9]+(?:[-.][a-zA-Z0-9]+)*(?::[0-9]{1,5})?(?:\/[a-zA-Z0-9@]+)*(?:\.[a-zA-Z]{2,5})*)\)", text)
+    matches = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
     extract = []
     for match in matches:
         extract.append(match)

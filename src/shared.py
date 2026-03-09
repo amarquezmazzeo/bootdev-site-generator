@@ -1,6 +1,8 @@
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode, ParentNode
 
+import os
+
 # print("hello world")
 # tex = TextNode("This is some anchor text", TextType.LINK, "https://www.boot.dev")
 # print(tex)
@@ -23,3 +25,5 @@ def text_node_to_html_node(text_node):
                                "alt": text_node.text}) 
     else:
         raise ValueError("unsupported text type")
+
+

@@ -1,4 +1,5 @@
 import re
+import os
 from enum import Enum
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode, ParentNode
@@ -61,11 +62,11 @@ def block_to_html_node(block): # TODO: break down long func
     block_type = block_to_block_type(block)
     if block_type == BlockType.HEADING:
         h_num = re.findall(r"^(#+) ", block)
-        text = re.sub(r"\#+\ ", "", block, 1),
+        text = re.sub(r"\#+\ ", "", block, 1)
         c, v = text_to_children_value(text)
         if c is None:
             html_node = LeafNode(
-                tag = f"h{len(h_num)}",
+                tag = f"h{len(h_num[0])}",
                 value = v,
                 props = None
             )
@@ -89,7 +90,7 @@ def block_to_html_node(block): # TODO: break down long func
         )
         return html_node
     if block_type == BlockType.QUOTE:
-        text = re.sub(r"\>\ *", "", block, 1),
+        text = re.sub(r"\>\ *", "", block)
         c, v = text_to_children_value(text)
         if c is None:
             html_node = LeafNode(
@@ -148,13 +149,19 @@ def block_to_html_node(block): # TODO: break down long func
         )
     return html_node
 
+def extract_title(markdown):
+    match = re.search(r"# (.+)(?:\n|$)", markdown)
+    if not match:
+        raise Exception("No title found in markdown")
+    return match.group(1).strip()
+
 def text_to_children_value(text):
     html_children = []
     text_nodes = text_to_textnodes(text)
     for text_node in text_nodes:
         html_children.append(text_node_to_html_node(text_node))
     if len(html_children) <= 1:
-        return (None, html_children)
+        return (None, html_children[0].to_html())
     return (html_children, None)
 
 def markdown_to_html_node(markdown):
@@ -168,4 +175,23 @@ def markdown_to_html_node(markdown):
         props={'id' : 'parent'},
     )
     return parent_node
+
+def generate_page(from_path, template_path, dest_path):
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+    markdown = ""
+    with open(from_path, 'r', encoding='utf-8') as f:
+        markdown = f.read()
+    template = ""
+    with open(template_path, 'r', encoding='utf-8') as f:
+        template = f.read()
+    html_node = markdown_to_html_node(markdown)
+    content = html_node.to_html()
+    title = extract_title(markdown)
+    template_out = re.sub(r'\{\{ Title \}\}', title, template)
+    template_out = re.sub(r'\{\{ Content \}\}', content, template_out)
+    dest_path_dir = os.path.dirname(dest_path)
+    if not os.path.exists(dest_path_dir):
+        os.makedirs(dest_path_dir)
+    with open(dest_path, 'w', encoding='utf-8') as f:
+        f.write(template_out)
 
